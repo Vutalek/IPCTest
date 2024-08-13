@@ -7,7 +7,7 @@ typedef enum
 {
     SERVER,
     CLIENT
-}; ENTITY
+} ENTITY;
 
 struct client_id
 {
