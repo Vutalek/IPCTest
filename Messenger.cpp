@@ -1,5 +1,5 @@
-#ifndef MESSANGER_H
-#define MESSANGER_H
+#ifndef MESSENGER_H
+#define MESSENGER_H
 
 #include <string>
 
@@ -83,11 +83,26 @@ protected:
     message* msg;
 };
 
-class Messanger
+class Messenger
 {
 public:
-    Messanger(Connector* con) : connector(con)
+    Messenger(
+              ENTITY ent,
+              std::string s_name,
+              client_id cl,
+              )
+              : connector(ent, s_name, cl)
     {
+    }
+
+    void open()
+    {
+        connector.open();
+    }
+
+    void close()
+    {
+        connector.close();
     }
 
     virtual message* read_get_link() = 0;
@@ -96,7 +111,7 @@ public:
     virtual message* write_get_link(client_id client) = 0;
     virtual void write_release_link() = 0;
 protected:
-    Connector* connector;
+    Connector connector;
 };
 
 #endif
@@ -104,16 +119,15 @@ protected:
 /* Общая структура приложения
 int main()
 {
-    SMIFactory fac = SMIFactory();
-    Connector* con = fac.FifoCon(...);
-    Messanger* messanger = fac.FifoMes(con);
-    con->open();
+    MessengerFactory fac = MessengerFactory();
+    Messenger* messenger = fac.fifo(...);
+    messenger->open();
     int t1 = time();
-    char* data_block = messanger->read_get_link()->data;
+    char* data_block = messenger->read_get_link()->data;
     std::cout << data_block << std::endl;
     int t2 = time();
-    messanger->read_release_link();
-    con.close();
+    messenger->read_release_link();
+    messenger->close();
     std::cout << t2 - t1 << std::endl;
     return 0;
 }
