@@ -53,18 +53,21 @@ public:
               ENTITY ent,
               std::string s_name,
               client_id cl,
-              size_t m_size,
-              message* m
               )
               : entity(ent)
               , server_name(s_name)
               , client(cl)
-              , message_size(m_size)
-              , msg(m)
     {
     }
 
     virtual void open() = 0;
+
+    void set_message(size_t sz, message* m)
+    {
+        message_size = sz;
+        msg = m;
+    }
+
     virtual void close() = 0;
 
     ENTITY get_entity() {return entity;}
@@ -83,16 +86,35 @@ protected:
 class Messanger
 {
 public:
-    Messanger(Connector con) : connector(con)
+    Messanger(Connector* con) : connector(con)
     {
     }
-    virtual void* read_get_link() = 0;
+
+    virtual message* read_get_link() = 0;
     virtual void read_release_link() = 0;
 
-    virtual void* write_get_link(client_id client) = 0;
+    virtual message* write_get_link(client_id client) = 0;
     virtual void write_release_link() = 0;
 protected:
-    Connector connector;
+    Connector* connector;
 };
 
 #endif
+
+/* Общая структура приложения
+int main()
+{
+    SMIFactory fac = SMIFactory();
+    Connector* con = fac.FifoCon(...);
+    Messanger* messanger = fac.FifoMes(con);
+    con->open();
+    int t1 = time();
+    char* data_block = messanger->read_get_link()->data;
+    std::cout << data_block << std::endl;
+    int t2 = time();
+    messanger->read_release_link();
+    con.close();
+    std::cout << t2 - t1 << std::endl;
+    return 0;
+}
+*/
