@@ -1,7 +1,9 @@
-#ifndef FIFO_H
-#define FIFO_H
+#ifndef FIFOMESSENGER_H
+#define FIFOMESSENGER_H
 
 #include "Messenger.cpp"
+#include "FifoConnector.cpp"
+
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -10,110 +12,18 @@
 
 using namespace std;
 
-#define MAX_CLIENTS 20
-
-struct client_info
-{
-    int fd;
-    int pid;
-};
-
-class FifoConnector : public Connector
-{
-public:
-    FifoConnector(
-                    ENTITY ent,
-                    string s_name,
-                    client_id cl,
-                    size_t msg_size,
-                    message* m
-                )
-                : Connector(ent, s_name, cl)
-    {
-        set_message(msg_size, m);
-    }
-
-    void init_clients()
-    {
-        for(int i = 0; i < MAX_CLIENTS; i++)
-            clients[i].fd = -1;
-    }
-
-    void close_clients()
-    {
-        for(int i = 0; i < MAX_CLIENTS; i++)
-            if (clients[i].fd != -1)
-            {
-                close(clients[i].fd);
-                clients[i].fd = -1;
-            }
-    }
-
-    void open_connection() override
-    {
-        string fifoname = "/tmp/fifo_" + server_name;
-        if (entity == SERVER)
-        {
-            init_clients();
-            mkfifo(fifoname.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-            server_fd_r = open(fifoname.c_str(), O_RDONLY);
-            server_fd_w = open(fifoname.c_str(), O_WRONLY);
-        }
-        else
-        {
-            server_fd_r = open(fifoname.c_str(), O_WRONLY);
-            fifoname = "/tmp/fifo" + to_string(getpid());
-            unlink(fifoname.c_str());
-            mkfifo(fifoname.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-            clients[0].fd = open(fifoname.c_str(), O_RDONLY | O_NONBLOCK);
-            int flags = fcntl(clients[0].fd, F_GETFL);
-            flags &= ~O_NONBLOCK;
-            fcntl(clients[0].fd, F_SETFL, flags);
-            clients[1].fd = open(fifoname.c_str(), O_WRONLY);
-        }
-    }
-
-    void close_connection() override
-    {
-        close_clients();
-        close(server_fd_r);
-        if (entity == SERVER)
-            close(server_fd_w);
-        else
-        {
-            string fifoname = "/tmp/fifo_" + to_string(getpid());
-            unlink(fifoname.c_str());
-        }
-    }
-
-    client_info* get_clients()
-    {
-        return clients;
-    }
-
-    int get_server_fd_r()
-    {
-        return server_fd_r;
-    }
-private:
-    int server_fd_r;
-    int server_fd_w;
-    client_info clients[MAX_CLIENTS];
-};
-
 class FifoMessenger : public Messenger
 {
 public:
     FifoMessenger(
                 ENTITY ent,
                 std::string s_name,
-                client_id cl,
                 size_t msg_size,
                 message* m
                 )
                 : Messenger()
     {
-        connector = new FifoConnector(ent, s_name, cl, msg_size, m);
+        connector = new FifoConnector(ent, s_name, msg_size, m);
     }
 
     int find_client(pid_t pid)
@@ -213,12 +123,5 @@ public:
         }
     }
 };
-
-int main()
-{
-
-
-    return 0;
-}
 
 #endif
