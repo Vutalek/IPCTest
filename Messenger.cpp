@@ -25,17 +25,6 @@ struct client_id
 
 struct message
 {
-    message(
-            long t,
-            client_id c,
-            char* d
-            )
-            : type(t)
-            , client(c)
-            , data(d)
-    {
-    }
-
     ~message()
     {
         delete data;
@@ -52,7 +41,7 @@ public:
     Connector(
               ENTITY ent,
               std::string s_name,
-              client_id cl,
+              client_id cl
               )
               : entity(ent)
               , server_name(s_name)
@@ -60,7 +49,12 @@ public:
     {
     }
 
-    virtual void open() = 0;
+    virtual ~Connector()
+    {
+        delete msg;
+    }
+
+    virtual void open_connection() = 0;
 
     void set_message(size_t sz, message* m)
     {
@@ -68,11 +62,12 @@ public:
         msg = m;
     }
 
-    virtual void close() = 0;
+    virtual void close_connection() = 0;
 
     ENTITY get_entity() {return entity;}
     std::string get_server_name() {return server_name;}
     client_id get_client() {return client;}
+    void set_client(client_id cl) {client = cl;}
     size_t get_message_size() {return message_size;}
     message* get_message() {return msg;}
 protected:
@@ -86,32 +81,28 @@ protected:
 class Messenger
 {
 public:
-    Messenger(
-              ENTITY ent,
-              std::string s_name,
-              client_id cl,
-              )
-              : connector(ent, s_name, cl)
+    virtual ~Messenger()
     {
+        delete connector;
     }
 
-    void open()
+    void open_connector()
     {
-        connector.open();
+        connector->open_connection();
     }
 
-    void close()
+    void close_connector()
     {
-        connector.close();
+        connector->close_connection();
     }
 
-    virtual message* read_get_link() = 0;
+    virtual message* read_get_link(client_id cl) = 0;
     virtual void read_release_link() = 0;
 
-    virtual message* write_get_link(client_id client) = 0;
+    virtual message* write_get_link(client_id cl) = 0;
     virtual void write_release_link() = 0;
 protected:
-    Connector connector;
+    Connector* connector;
 };
 
 #endif
