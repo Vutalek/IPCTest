@@ -2,6 +2,7 @@
 #define CONNECTOR_H
 
 #include <string>
+#include <cstddef>
 
 typedef enum
 {
@@ -17,14 +18,10 @@ struct client_id
 
 struct message
 {
-    ~message()
-    {
-        delete data;
-    }
-
     long type;
     client_id client;
-    char* data;
+    int data_size;
+    uint8_t data[1];
 };
 
 class Connector
@@ -33,14 +30,13 @@ public:
     Connector(
         ENTITY ent,
         std::string s_name,
-        size_t sz,
-        message* m
+        size_t sz
     )
     : entity(ent)
     , server_name(s_name)
-    , message_size(sz)
-    , msg(m)
     {
+        message_size = sz + offsetof(message, data);
+        msg = (message*) malloc(message_size);
     }
 
     virtual ~Connector()
@@ -53,15 +49,19 @@ public:
     virtual void close_connection() = 0;
 
     ENTITY get_entity() { return entity; }
+
     std::string get_server_name() { return server_name; }
-    client_id get_client() { return client; }
-    void set_client(client_id cl) { client = cl; }
+
+    client_id get_client_process() { return client_process; }
+    void set_client_process(client_id cl) { client_process = cl; }
+
     size_t get_message_size() { return message_size; }
+
     message* get_message() { return msg; }
 protected:
     ENTITY entity;
     std::string server_name;
-    client_id client;
+    client_id client_process;
     size_t message_size;
     message* msg;
 };
