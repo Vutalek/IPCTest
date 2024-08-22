@@ -23,7 +23,7 @@ public:
         connector->close_connection();
     }
 
-    virtual message* read_get_link(client_id cl) = 0;
+    virtual message* read_get_link() = 0;
     virtual void read_release_link() = 0;
 
     virtual message* write_get_link(client_id cl) = 0;

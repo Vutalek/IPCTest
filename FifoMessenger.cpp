@@ -18,13 +18,13 @@ public:
     FifoMessenger(
                 ENTITY ent,
                 std::string s_name,
-                size_t msg_size,
-                message* m
+                size_t msg_size
                 )
                 : Messenger()
     {
-        connector = new FifoConnector(ent, s_name, msg_size, m);
+        connector = new FifoConnector(ent, s_name, msg_size);
     }
+
 
     int find_client(pid_t pid)
     {
@@ -41,7 +41,7 @@ public:
         return avail;
     }
 
-    message* read_get_link(client_id cl) override
+    message* read_get_link() override
     {
         size_t nread;
         if (connector->get_entity() == SERVER)
@@ -69,7 +69,7 @@ public:
                     continue;
                 if (static_cast<FifoConnector*>(connector)->get_clients()[client_index].fd == -1)
                 {
-                    fifoname = "/tmp/fifo_" + to_string(connector->get_message()->client.c_id1);
+                    fifoname = "/tmp/fifo" + to_string(connector->get_message()->client.c_id1);
                     static_cast<FifoConnector*>(connector)->get_clients()[client_index].fd = open(fifoname.c_str(), O_WRONLY);
                 }
                 break;
@@ -92,7 +92,7 @@ public:
     message* write_get_link(client_id cl) override
     {
         if (connector->get_entity() == SERVER)
-            connector->set_client(cl);
+            connector->set_client_process(cl);
         return connector->get_message();
     }
 
@@ -100,10 +100,10 @@ public:
     {
         if (connector->get_entity() == SERVER)
         {
-            int client_index = find_client(connector->get_client().c_id1);
+            int client_index = find_client(connector->get_client_process().c_id1);
             if (client_index == -1 || static_cast<FifoConnector*>(connector)->get_clients()[client_index].fd == -1)
             {
-                cout << "Ошибка записи" << endl;
+                cout << "Write Error" << endl;
                 return;
             }
             write(

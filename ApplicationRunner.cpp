@@ -6,7 +6,10 @@
 class ApplicationRunner
 {
 public:
-    ApplicationRunner(Application* app) : application(app)
+    ApplicationRunner(
+        Application* app
+    )
+    : application(app)
     {
     }
 
