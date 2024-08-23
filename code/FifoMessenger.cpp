@@ -4,8 +4,7 @@
 #include "Messenger.cpp"
 #include "FifoConnector.cpp"
 
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <cstddef>
 #include <unistd.h>
 #include <string>
 #include <iostream>

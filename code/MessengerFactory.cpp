@@ -1,7 +1,6 @@
 #ifndef MESSENGERFACTORY_H
 #define MESSENGERFACTORY_H
 
-#include "Connector.cpp"
 #include "Messenger.cpp"
 
 #include <string>
