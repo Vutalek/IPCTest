@@ -15,11 +15,11 @@ class FifoMessenger : public Messenger
 {
 public:
     FifoMessenger(
-                ENTITY ent,
-                std::string s_name,
-                size_t msg_size
-                )
-                : Messenger()
+        ENTITY ent,
+        std::string s_name,
+        size_t msg_size
+    )
+    : Messenger()
     {
         connector = new FifoConnector(ent, s_name, msg_size);
     }

@@ -15,7 +15,7 @@ using namespace std;
 #define TRANSMISSION 0
 #define TRANSMISSION_END 900
 
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 class IPCTest : public Application
 {
@@ -113,6 +113,12 @@ public:
     {
         if (method == "fifo")
             messenger = factory.make_fifo(
+                application_entity,
+                SERVER_NAME,
+                DATA_BLOCK
+            );
+        else if (method == "socket")
+            messenger = factory.make_socket(
                 application_entity,
                 SERVER_NAME,
                 DATA_BLOCK
