@@ -17,8 +17,6 @@ using namespace std;
 
 #define DEBUG_MODE 0
 
-#define NUMBER_OF_TRIES 10
-
 class IPCTest : public Application
 {
 public:
