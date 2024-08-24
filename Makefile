@@ -9,7 +9,7 @@ BUILDEDMESSENGERFACTORY = build/MessengerFactory.o build/MessengerFactoryImpleme
 BUILDEDFIFO = build/FifoConnector.o build/FifoMessenger.o
 BUILDEDSOCKET = build/Socket.o build/SocketConnector.o build/SocketMessenger.o
 
-.PHONY: all clean Application IPCTest Messenger MessengerFactory Fifo
+.PHONY: all clean Application IPCTest Messenger MessengerFactory Fifo Socket test
 
 all: $(TARGET)
 

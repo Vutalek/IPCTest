@@ -12,8 +12,9 @@ using namespace std;
 
 #define SERVER_NAME "ipc_server"
 #define DATA_BLOCK 512
-#define TRANSMISSION 0
-#define TRANSMISSION_END 900
+#define M_TRANSMISSION_DATA 0
+#define M_MESSAGE 1
+#define M_TRANSMISSION_END 900
 
 #define DEBUG_MODE 1
 
@@ -160,14 +161,12 @@ public:
     {
         message* message_in = messenger->read_get_link();
 
-        if (message_in->type == TRANSMISSION_END)
+        if (message_in->type == M_TRANSMISSION_END)
         {
             cout << "Transmission with client " << message_in->client.c_id1 << " ended." << endl;
             if (close_server())
-            {
                 ended = true;
-                return;
-            }
+            return;
         }
 
         write(out_file_fd, message_in->data, message_in->data_size);
@@ -177,8 +176,10 @@ public:
 #if DEBUG_MODE
         message* message_out = messenger->write_get_link(message_in->client);
 
+        message_out->type = M_MESSAGE;
+
         char char_getted[100];
-        sprintf(char_getted, "Server received %d bytes from .\n", message_in->data_size, message_in->client.c_id1);
+        sprintf(char_getted, "Server received %d bytes from %d.\n", message_in->data_size, message_in->client.c_id1);
         uint8_t* getted = char_to_byte(char_getted);
         memcpy(message_out->data, getted, strlen(char_getted) + 1);
         delete[] getted;
@@ -221,6 +222,7 @@ public:
         {
             file_size += nread;
             msg = messenger->write_get_link(client_id());
+            msg->type = M_TRANSMISSION_DATA;
             msg->data_size = nread;
             memcpy(msg->data, buffer, nread);
             messenger->write_release_link();
@@ -238,7 +240,7 @@ public:
         cout << "Bandwidth: " << (file_size/sec)/1000000 << " MBytes/sec" << endl;
 
         msg = messenger->write_get_link(client_id());
-        msg->type = TRANSMISSION_END;
+        msg->type = M_TRANSMISSION_END;
         messenger->write_release_link();
 
         ended = true;
