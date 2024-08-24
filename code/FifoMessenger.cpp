@@ -4,8 +4,7 @@
 #include "Messenger.cpp"
 #include "FifoConnector.cpp"
 
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <cstddef>
 #include <unistd.h>
 #include <string>
 #include <iostream>
@@ -16,11 +15,11 @@ class FifoMessenger : public Messenger
 {
 public:
     FifoMessenger(
-                ENTITY ent,
-                std::string s_name,
-                size_t msg_size
-                )
-                : Messenger()
+        ENTITY ent,
+        std::string s_name,
+        size_t msg_size
+    )
+    : Messenger()
     {
         connector = new FifoConnector(ent, s_name, msg_size);
     }
@@ -114,7 +113,7 @@ public:
         }
         else
         {
-            static_cast<FifoConnector*>(connector)->get_message()->client.c_id1 = (long)getpid();
+            connector->get_message()->client.c_id1 = (long)getpid();
             write(
                 static_cast<FifoConnector*>(connector)->get_server_fd_r(),
                 connector->get_message(),

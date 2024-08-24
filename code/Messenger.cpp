@@ -3,8 +3,6 @@
 
 #include "Connector.cpp"
 
-#include <string>
-
 class Messenger
 {
 public:

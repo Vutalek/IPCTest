@@ -1,8 +1,5 @@
-#include "ApplicationRunner.cpp"
-#include "IPCTest.cpp"
-
-#include <string>
-#include <cstring>
+#include "code/ApplicationRunner.cpp"
+#include "code/IPCTest.cpp"
 
 int main(int argc, char* argv[])
 {
