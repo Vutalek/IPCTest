@@ -16,7 +16,7 @@ using namespace std;
 #define M_MESSAGE 1
 #define M_TRANSMISSION_END 900
 
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 class IPCTest : public Application
 {

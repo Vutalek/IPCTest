@@ -21,6 +21,8 @@ public:
     : is_server(server)
     , server_name(name)
     {
+        if (is_server)
+            unlink(server_name.c_str());
         fd = socket(AF_UNIX, SOCK_STREAM, 0);
         set_maximum_fd(fd);
     }
@@ -28,15 +30,16 @@ public:
     void open_connection()
     {
         sockaddr_un sock = make_sockaddr_un(server_name);
+        socklen_t sock_len = sizeof(sock);
         if (is_server)
         {
             FD_ZERO(&set);
-            bind(fd, (sockaddr*)&sock, server_name.length() +1);
+            bind(fd, (sockaddr*)&sock, sock_len);
             listen(fd, MAXCONN);
             FD_SET(fd, &set);
         }
         else
-            connect(fd, (sockaddr*)&sock, server_name.length()+1);
+            connect(fd, (sockaddr*)&sock, sock_len);
     }
 
     sockaddr_un make_sockaddr_un(string name)
@@ -73,10 +76,10 @@ public:
                         else
                             return i;
                     }
-                return -1;
             }
         }
-        return -1;
+        else
+            return -1;
     }
 
     int get_server_fd()
@@ -109,6 +112,7 @@ public:
         if (f > maximum_fd)
             maximum_fd = f;
     }
+
     void reset_maximum_fd(int f)
     {
         if (f == maximum_fd)

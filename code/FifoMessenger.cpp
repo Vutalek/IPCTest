@@ -113,7 +113,7 @@ public:
         }
         else
         {
-            static_cast<FifoConnector*>(connector)->get_message()->client.c_id1 = (long)getpid();
+            connector->get_message()->client.c_id1 = (long)getpid();
             write(
                 static_cast<FifoConnector*>(connector)->get_server_fd_r(),
                 connector->get_message(),

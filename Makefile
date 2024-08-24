@@ -9,12 +9,12 @@ BUILDEDMESSENGERFACTORY = build/MessengerFactory.o build/MessengerFactoryImpleme
 BUILDEDFIFO = build/FifoConnector.o build/FifoMessenger.o
 BUILDEDSOCKET = build/Socket.o build/SocketConnector.o build/SocketMessenger.o
 
-.PHONY: all clean Application IPCTest Messenger MessengerFactory Fifo Socket test
+.PHONY: all clean Application IPCTest Messenger MessengerFactory Fifo Socket
 
 all: $(TARGET)
 
 clean:
-	rm -rf bin/$(TARGET) build/*.o
+	rm -rf bin/* build/*.o
 	rmdir build
 	rmdir bin
 

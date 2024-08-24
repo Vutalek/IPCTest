@@ -46,7 +46,7 @@ public:
                 break;
         }
         if (connector->get_entity() == SERVER)
-            connector->get_message()->client.c_id1 = fd;
+            connector->get_message()->client.c_id2 = fd;
         return connector->get_message();
     }
 
@@ -58,7 +58,7 @@ public:
     message* write_get_link(client_id cl) override
     {
         if (connector->get_entity() == SERVER)
-            connector->get_client_process() = cl;
+            connector->set_client_process(cl);
         return connector->get_message();
     }
 
@@ -66,9 +66,12 @@ public:
     {
         int fd;
         if (connector->get_entity() == SERVER)
-            fd = connector->get_client_process().c_id1;
+            fd = connector->get_client_process().c_id2;
         else
+        {
+            connector->get_message()->client.c_id1 = (long)getpid();
             fd = static_cast<SocketConnector*>(connector)->get_socket()->get_server_fd();
+        }
         write(
             fd,
             connector->get_message(),
