@@ -50,6 +50,7 @@ public:
     virtual void close_connection() = 0;
 
     ENTITY get_entity() { return entity; }
+    void set_entity(ENTITY ent) { entity = ent; }
 
     std::string get_server_name() { return server_name; }
 
