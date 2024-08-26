@@ -1,6 +1,6 @@
 TARGET = ipc
 
-PACKAGES = Application IPCTest Messenger MessengerFactory Fifo Socket
+PACKAGES = Application IPCTest Messenger MessengerFactory Fifo Socket Pipe
 
 BUILDEDAPPLICATION = build/Application.o build/ApplicationRunner.o
 BUILDEDIPCTEST = build/IPCTest.o
@@ -8,8 +8,9 @@ BUILDEDMESSENGER = build/Connector.o build/Messenger.o
 BUILDEDMESSENGERFACTORY = build/MessengerFactory.o build/MessengerFactoryImplementation.o
 BUILDEDFIFO = build/FifoConnector.o build/FifoMessenger.o
 BUILDEDSOCKET = build/Socket.o build/SocketConnector.o build/SocketMessenger.o
+BUILDEDPIPE = build/PipeConnector.o build/PipeMessenger.o
 
-.PHONY: all clean Application IPCTest Messenger MessengerFactory Fifo Socket
+.PHONY: all clean Application IPCTest Messenger MessengerFactory Fifo Socket Pipe
 
 all: $(TARGET)
 
@@ -53,3 +54,7 @@ Socket: build
 	g++ -c -o build/Socket.o code/Socket.cpp
 	g++ -c -o build/SocketConnector.o code/SocketConnector.cpp
 	g++ -c -o build/SocketMessenger.o code/SocketMessenger.cpp
+
+Pipe: build
+	g++ -c -o build/PipeConnector.o code/PipeConnector.cpp
+	g++ -c -o build/PipeMessenger.o code/PipeMessenger.cpp

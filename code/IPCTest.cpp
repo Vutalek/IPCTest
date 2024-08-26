@@ -37,7 +37,7 @@ public:
         else
         {
             cout << "Incorrect role." << endl;
-            ended = true;
+            preopen_error = true;
         }
 
         factory = MessengerFactoryImplementation();
@@ -52,11 +52,14 @@ public:
     {
         if (!check_method())
         {
-            ended = true;
+            preopen_error = true;
             return;
         }
 
         messenger->open_connection();
+
+        if (method == "pipe")
+            application_entity = messenger->get_messenger_entity();
 
         if (application_entity == SERVER)
         {
@@ -79,7 +82,7 @@ public:
 
     bool done() override
     {
-        return ended;
+        return (preopen_error || ended);
     }
 
     void action() override
@@ -92,13 +95,18 @@ public:
 
     void exit() override
     {
-        messenger->close_connection();
-        close(in_file_fd);
-        close(out_file_fd);
-        if (application_entity == SERVER)
-            cout << "Server closed." << endl;
+        if (preopen_error)
+            return;
         else
-            cout << "Connection closed." << endl;
+        {
+            messenger->close_connection();
+            close(in_file_fd);
+            close(out_file_fd);
+            if (application_entity == SERVER)
+                cout << "Server closed." << endl;
+            else
+                cout << "Connection closed." << endl;
+        }
     }
 
     uint8_t* char_to_byte(char* str)
@@ -124,6 +132,8 @@ public:
                 SERVER_NAME,
                 DATA_BLOCK
             );
+        else if (method == "pipe")
+            messenger = factory.make_pipe(DATA_BLOCK);
         else
         {
             cout << "Incorrect method." << endl;
@@ -135,6 +145,10 @@ public:
     bool server_init()
     {
         cout << "Server opened." << endl;
+
+        if (method == "pipe")
+            path_to_file += "copy";
+
         out_file_fd = creat(path_to_file.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (out_file_fd == -1)
         {
@@ -190,6 +204,9 @@ public:
 
     bool close_server()
     {
+        if (method == "pipe")
+            return true;
+
         cout << "Close server?[y/n]: ";
         char choice;
         cin >> choice;
@@ -256,6 +273,7 @@ private:
     int out_file_fd;
 
     bool ended = false;
+    bool preopen_error = false;
 };
 
 #endif
