@@ -5,18 +5,31 @@
 #include <cstddef>
 #include <cstdint>
 
+//message.type codes
+//Message carry byte data
+#define M_TRANSMISSION_DATA 0
+
+//Message is a string of words
+#define M_MESSAGE 1
+
+//Special message that indicates that client ended transmitting data
+#define M_TRANSMISSION_END 900
+
+//Entity of application
 typedef enum
 {
     SERVER,
     CLIENT
 } ENTITY;
 
+//Structure that holds information describing client
 struct client_id
 {
     long c_id1;
     long c_id2;
 };
 
+//Message structure
 struct message
 {
     long type;
@@ -25,6 +38,8 @@ struct message
     uint8_t data[1];
 };
 
+//Connector class can open and close connection between processes
+//also it carries message buffer msg
 class Connector
 {
 public:

@@ -6,6 +6,8 @@
 #include "SocketMessenger.cpp"
 #include "PipeMessenger.cpp"
 
+//Factory pattern
+
 class MessengerFactoryImplementation : public MessengerFactory
 {
 public:
@@ -13,10 +15,12 @@ public:
     {
         return new FifoMessenger(ent, s_name, msg_size);
     }
+
     Messenger* make_socket(ENTITY ent, std::string s_name, int msg_size) override
     {
         return new SocketMessenger(ent, s_name, msg_size);
     }
+
     Messenger* make_pipe(int msg_size) override
     {
         return new PipeMessenger(msg_size);

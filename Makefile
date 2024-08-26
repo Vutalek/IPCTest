@@ -26,7 +26,7 @@ bin:
 	mkdir bin
 
 $(TARGET): bin $(PACKAGES) Main.o
-	g++ -Wall -o bin/$(TARGET) $(BUILDEDAPPLICATION) $(BUILDEDIPCTEST) $(BUILDEDMESSENGER) $(BUILDEDMESSENGERFACTORY) $(BUILDEDFIFO) $(BUILDEDSOCKET) build/Main.o
+	g++ -Wall -o bin/$(TARGET) build/Main.o
 
 Main.o: build
 	g++ -c -o build/Main.o Main.cpp

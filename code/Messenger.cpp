@@ -3,6 +3,8 @@
 
 #include "Connector.cpp"
 
+//Messenger class can get links to message from connector
+//to perform data reading/writing
 class Messenger
 {
 public:

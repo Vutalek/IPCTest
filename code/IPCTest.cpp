@@ -10,13 +10,21 @@
 
 using namespace std;
 
+//Settings of connection
 #define SERVER_NAME "ipc_server"
 #define DATA_BLOCK 512
-#define M_TRANSMISSION_DATA 0
-#define M_MESSAGE 1
-#define M_TRANSMISSION_END 900
 
 #define DEBUG_MODE 0
+
+//This function transform char array into uint8_t array
+uint8_t* char_to_byte(char* str)
+{
+    size_t len = strlen(str) + 1;
+    uint8_t* byte_str = new uint8_t[len];
+    for(size_t i = 0; i < len; i++)
+        byte_str[i] = (uint8_t)str[i];
+    return byte_str;
+}
 
 class IPCTest : public Application
 {
@@ -51,13 +59,19 @@ public:
     void init() override
     {
         if (!check_method())
-        {
             preopen_error = true;
+
+        //This lines prevent opening connector
+        //if Incorrect Role occured
+        if (preopen_error)
             return;
-        }
 
         messenger->open_connection();
 
+        //If it is pipe method than we need to manually
+        //set application_entity according to messenger
+        //In PipeConnector in function open_connection() after fork()
+        //there is code that changes entity to CLIENT in child process
         if (method == "pipe")
             application_entity = messenger->get_messenger_entity();
 
@@ -95,6 +109,7 @@ public:
 
     void exit() override
     {
+        //There is nothing to clean
         if (preopen_error)
             return;
         else
@@ -107,15 +122,6 @@ public:
             else
                 cout << "Connection closed." << endl;
         }
-    }
-
-    uint8_t* char_to_byte(char* str)
-    {
-        size_t len = strlen(str) + 1;
-        uint8_t* byte_str = new uint8_t[len];
-        for(size_t i = 0; i < len; i++)
-            byte_str[i] = (uint8_t)str[i];
-        return byte_str;
     }
 
     bool check_method()
@@ -133,7 +139,9 @@ public:
                 DATA_BLOCK
             );
         else if (method == "pipe")
-            messenger = factory.make_pipe(DATA_BLOCK);
+            messenger = factory.make_pipe(
+                DATA_BLOCK
+            );
         else
         {
             cout << "Incorrect method." << endl;
@@ -146,6 +154,9 @@ public:
     {
         cout << "Server opened." << endl;
 
+        //In pipe method whe running we can set path_to_file only once
+        //so in server initializing code added this line in order to create new
+        //file of copy
         if (method == "pipe")
             path_to_file += "copy";
 
@@ -162,6 +173,7 @@ public:
     {
         cout << "Connection established." << endl;
         cout << "Client: " << getpid() << "." << endl;
+
         in_file_fd = open(path_to_file.c_str(), O_RDONLY);
         if (in_file_fd == -1)
         {
@@ -173,6 +185,7 @@ public:
 
     void server_side()
     {
+        //Reading incoming message
         message* message_in = messenger->read_get_link();
 
         if (message_in->type == M_TRANSMISSION_END)
@@ -182,12 +195,13 @@ public:
                 ended = true;
             return;
         }
-
-        write(out_file_fd, message_in->data, message_in->data_size);
+        else if (message_in->type == M_TRANSMISSION_DATA)
+            write(out_file_fd, message_in->data, message_in->data_size);
 
         messenger->read_release_link();
 
 #if DEBUG_MODE
+        //Sending OK information to client
         message* message_out = messenger->write_get_link(message_in->client);
 
         message_out->type = M_MESSAGE;
@@ -204,6 +218,9 @@ public:
 
     bool close_server()
     {
+        //If it is pipe method after one transmission
+        //child process is waited
+        //so we must close application
         if (method == "pipe")
             return true;
 
@@ -232,34 +249,51 @@ public:
         message* msg;
         uint8_t buffer[DATA_BLOCK];
         int nread = 0;
+
         timeval t1, t2;
         unsigned long long file_size = 0;
+
+        //First time stamp
         gettimeofday(&t1, NULL);
         while((nread = read(in_file_fd, buffer, DATA_BLOCK)) != 0)
         {
             file_size += nread;
+            //Sending read bytes to server
             msg = messenger->write_get_link(client_id());
+
             msg->type = M_TRANSMISSION_DATA;
             msg->data_size = nread;
             memcpy(msg->data, buffer, nread);
+
             messenger->write_release_link();
 #if DEBUG_MODE
+            //Reading server OK information
             cout << "Send " << nread << " bytes." << endl;
             msg = messenger->read_get_link();
-            cout << msg->data << endl;
+
+            if (msg->type == M_MESSAGE)
+                cout << msg->data << endl;
+
             messenger->read_release_link();
 #endif
         }
+        //Second time stamp
         gettimeofday(&t2, NULL);
+
+        //Calculate time in seconds
         double sec = t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1000000.0;
         cout << "File size: " << file_size << " Bytes" << endl;
         cout << "General time: " << sec << " sec"<< endl;
         cout << "Bandwidth: " << (file_size/sec)/1000000 << " MBytes/sec" << endl;
 
+        //Send to server message that transmission was ended
         msg = messenger->write_get_link(client_id());
+
         msg->type = M_TRANSMISSION_END;
+
         messenger->write_release_link();
 
+        //Close client
         ended = true;
     }
 private:

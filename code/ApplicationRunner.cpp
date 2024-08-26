@@ -3,6 +3,8 @@
 
 #include "Application.cpp"
 
+//Strategy pattern
+
 class ApplicationRunner
 {
 public:
@@ -18,6 +20,7 @@ public:
         delete application;
     }
 
+    //Basic sequence of application actions
     void run()
     {
         application->init();
