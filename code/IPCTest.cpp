@@ -16,7 +16,6 @@ using namespace std;
 
 #define DEBUG_MODE 0
 
-
 class IPCTest : public Application
 {
 public:
