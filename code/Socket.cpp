@@ -11,6 +11,7 @@
 
 using namespace std;
 
+//Socket class is a wrap around standart C functions
 class Socket
 {
 public:
