@@ -16,16 +16,6 @@ using namespace std;
 
 #define DEBUG_MODE 0
 
-//This function transform char array into uint8_t array
-uint8_t* char_to_byte(char* str)
-{
-    size_t len = strlen(str) + 1;
-    uint8_t* byte_str = new uint8_t[len];
-    for(size_t i = 0; i < len; i++)
-        byte_str[i] = (uint8_t)str[i];
-    return byte_str;
-}
-
 class IPCTest : public Application
 {
 public:
@@ -140,6 +130,12 @@ public:
             );
         else if (method == "pipe")
             messenger = factory.make_pipe(
+                DATA_BLOCK
+            );
+        else if (method == "shm")
+            messenger = factory.make_shm(
+                application_entity,
+                SERVER_NAME,
                 DATA_BLOCK
             );
         else
@@ -295,6 +291,16 @@ public:
 
         //Close client
         ended = true;
+    }
+    
+    //This function transform char array into uint8_t array
+    uint8_t* char_to_byte(char* str)
+    {
+        size_t len = strlen(str) + 1;
+        uint8_t* byte_str = new uint8_t[len];
+        for(size_t i = 0; i < len; i++)
+            byte_str[i] = (uint8_t)str[i];
+	return byte_str;
     }
 private:
     ENTITY application_entity;

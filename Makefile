@@ -1,6 +1,6 @@
 TARGET = ipc
 
-PACKAGES = Application IPCTest Messenger MessengerFactory Fifo Socket Pipe
+PACKAGES = Application IPCTest Messenger MessengerFactory Fifo Socket Pipe SharedMemory
 
 BUILDEDAPPLICATION = build/Application.o build/ApplicationRunner.o
 BUILDEDIPCTEST = build/IPCTest.o
@@ -9,8 +9,9 @@ BUILDEDMESSENGERFACTORY = build/MessengerFactory.o build/MessengerFactoryImpleme
 BUILDEDFIFO = build/FifoConnector.o build/FifoMessenger.o
 BUILDEDSOCKET = build/Socket.o build/SocketConnector.o build/SocketMessenger.o
 BUILDEDPIPE = build/PipeConnector.o build/PipeMessenger.o
+BUILDEDSHAREDMEMORY = build/SharedMemoryConnector.o build/SharedMemoryMessenger.o
 
-.PHONY: all clean Application IPCTest Messenger MessengerFactory Fifo Socket Pipe
+.PHONY: all clean Application IPCTest Messenger MessengerFactory Fifo Socket Pipe SharedMemory
 
 all: $(TARGET)
 
@@ -26,7 +27,7 @@ bin:
 	mkdir bin
 
 $(TARGET): bin $(PACKAGES) Main.o
-	g++ -Wall -o bin/$(TARGET) build/Main.o
+	g++ -Wall -o bin/$(TARGET) $(BUILDEDAPPLICATION) $(BUILDEDIPCTEST) $(BUILDEDMESSENGER) $(BUILDEDMESSENGERFACTORY) $(BUILDEDFIFO) $(BUILDEDSOCKET) $(BUILDEDPIPE) $(BUILDEDSHAREDMEMORY) build/Main.o
 
 Main.o: build
 	g++ -c -o build/Main.o Main.cpp
@@ -58,3 +59,7 @@ Socket: build
 Pipe: build
 	g++ -c -o build/PipeConnector.o code/PipeConnector.cpp
 	g++ -c -o build/PipeMessenger.o code/PipeMessenger.cpp
+
+SharedMemory: build
+	g++ -c -o build/SharedMemoryConnector.o code/SharedMemoryConnector.cpp
+	g++ -c -o build/SharedMemoryMessenger.o code/SharedMemoryMessenger.cpp

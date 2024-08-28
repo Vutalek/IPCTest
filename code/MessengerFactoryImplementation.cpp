@@ -5,6 +5,7 @@
 #include "FifoMessenger.cpp"
 #include "SocketMessenger.cpp"
 #include "PipeMessenger.cpp"
+#include "SharedMemoryMessenger.cpp"
 
 //Factory pattern
 
@@ -24,6 +25,11 @@ public:
     Messenger* make_pipe(int msg_size) override
     {
         return new PipeMessenger(msg_size);
+    }
+    
+    Messenger* make_shm(ENTITY ent, std::string s_name, int msg_size) override
+    {
+        return new SharedMemoryMessenger(ent, s_name, msg_size);
     }
 };
 
